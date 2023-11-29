@@ -26,6 +26,7 @@ export default async function main() {
   const releaseBranches = core.getInput('release_branches');
   const preReleaseBranches = core.getInput('pre_release_branches');
   const scopes = core.getInput('scopes');
+  const includeLinks = /true/i.test(core.getInput('include_links'));
   const appendToPreReleaseTag = core.getInput('append_to_pre_release_tag');
   const createAnnotatedTag = /true/i.test(
     core.getInput('create_annotated_tag')
@@ -214,7 +215,10 @@ export default async function main() {
       preset: 'conventionalcommits',
       presetConfig: {
         types: mergeWithDefaultChangelogRules(mappedReleaseRules),
+        issuePrefixes: includeLinks ? ['#'] : ['DO_NOT_INCLUDE_LINKS'],
       },
+      linkCompare: includeLinks,
+      linkReferences: includeLinks,
     },
     {
       commits,

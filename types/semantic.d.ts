@@ -31,6 +31,8 @@ declare module '@semantic-release/release-notes-generator' {
     config: {
       preset?: string;
       config?: string;
+      linkCompare?: boolean;
+      linkReferences?: boolean;
       parserOpts?: any;
       writerOpts?: any;
       releaseRules?:

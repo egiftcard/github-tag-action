@@ -55,6 +55,10 @@ jobs:
 - **tag_prefix** _(optional)_ - A prefix to the tag name (default: `v`).
 - **append_to_pre_release_tag** _(optional)_ - A suffix to the pre-release tag name (default: `<branch>`).
 
+#### Customize the changelog
+
+- **include_links** _(optional)_ - Boolean to omit links (issues, references, and comparison) from the generated changelog (default: `true`).
+
 #### Customize the conventional commit messages & titles of changelog sections
 
 - **custom_release_rules** _(optional)_ - Comma separated list of release rules.
