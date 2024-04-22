@@ -1,4 +1,5 @@
 import * as core from '@actions/core';
+import { sync as parser } from 'conventional-commits-parser';
 import { gte, inc, parse, ReleaseType, SemVer, valid } from 'semver';
 import { analyzeCommits } from '@semantic-release/commit-analyzer';
 import { generateNotes } from '@semantic-release/release-notes-generator';
@@ -24,6 +25,8 @@ export default async function main() {
   const customTag = core.getInput('custom_tag');
   const releaseBranches = core.getInput('release_branches');
   const preReleaseBranches = core.getInput('pre_release_branches');
+  const scopes = core.getInput('scopes');
+  const includeLinks = /true/i.test(core.getInput('include_links'));
   const appendToPreReleaseTag = core.getInput('append_to_pre_release_tag');
   const createAnnotatedTag = /true/i.test(
     core.getInput('create_annotated_tag')
@@ -123,6 +126,22 @@ export default async function main() {
 
     commits = await getCommits(previousTag.commit.sha, commitRef);
 
+    if (scopes.length) {
+      const isInScope = (scope: string) =>
+        scopes.split(',').some((includedScope) => scope.match(includedScope));
+      commits = commits.filter((commit) => {
+        const scope = parser(commit.message).scope;
+        if (scope) {
+          const isInScopes = scopes
+            .split(',')
+            .some((includedScope) => scope.match(includedScope));
+          return isInScopes;
+        } else {
+          return false;
+        }
+      });
+    }
+
     let bump = await analyzeCommits(
       {
         releaseRules: mappedReleaseRules
@@ -196,7 +215,10 @@ export default async function main() {
       preset: 'conventionalcommits',
       presetConfig: {
         types: mergeWithDefaultChangelogRules(mappedReleaseRules),
+        issuePrefixes: includeLinks ? ['#'] : ['DO_NOT_INCLUDE_LINKS'],
       },
+      linkCompare: includeLinks,
+      linkReferences: includeLinks,
     },
     {
       commits,
